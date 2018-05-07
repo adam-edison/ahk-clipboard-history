@@ -6,46 +6,42 @@ SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 ;;;;; Global Initializations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ClipboardContentsArray := []
-LastCopied := ""
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-~^c::
-  copyTextToClipboard()
-  appendClipboardContentsToList()
+#Persistent
+  OnClipboardChange("clipboardContentChanged")
 return
 
-^F1::
-  alertClipboardContents()
+^Ins::
+  showListContents()
 return
 
-^F2::
+^!r::
   Reload
 return
 
-copyTextToClipboard() {
-  global LastCopied
-  copyFromClipboardReliably()
-  LastCopied := clipboard
+clipboardContentChanged(status) {
+  if (status = 1) { ; clipboard has contents that can be intepreted as text, and is not empty
+    appendToList(clipboard)
+  }
 }
 
-copyFromClipboardReliably() {
-  clipboard :=  ; Start off empty to allow ClipWait to detect when the text has arrived.
-  Send ^c
-  ClipWait  ; Wait for the clipboard to contain text.
+appendToList(contents) {
+  global ClipboardContentsArray
+  ClipboardContentsArray.Push(contents)
 }
 
-appendClipboardContentsToList() {
-  global ClipboardContentsArray, LastCopied
-  ClipboardContentsArray.Push(LastCopied)
-}
-
-alertClipboardContents() { 
+showListContents() { 
   global ClipboardContentsArray
   list := "" 
+  index := 0
   
   for key, value in ClipboardContentsArray {
-    list .= value . "`r`n"
+    list .= index . ": " . value . "`r`n"
+    index++
   }
   
-  MsgBox, Clipboard Contents: `r`n %list%
+  ToolTip, Clipboard Contents:`r`n%list%
+  Sleep 3000
+  ToolTip, 
 }
