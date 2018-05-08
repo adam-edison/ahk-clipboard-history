@@ -38,7 +38,14 @@ clipboardContentChanged(status) {
 
 appendToList(contents) {
   global ClipboardContentsArray
-  ClipboardContentsArray.Push(contents)
+
+  if (ClipboardContentsArray.Length() = 10) {
+    ClipboardContentsArray.RemoveAt(1) ; remove oldest entry
+    ClipboardContentsArray.Push(contents)
+  }
+  else {
+    ClipboardContentsArray.Push(contents)
+  }
 }
 
 showListContents() { 
