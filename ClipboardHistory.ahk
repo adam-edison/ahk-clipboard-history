@@ -8,7 +8,6 @@ CoordMode, ToolTip, Screen ; absolute screen coordinates, top left (0,0)
 ;;;;; Global Initializations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ClipboardContentsArray := []
-doNotProcessAsClipboardChange := false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #Persistent
@@ -24,13 +23,6 @@ return
 return
 
 clipboardContentChanged(status) {
-  global doNotProcessAsClipboardChange
-  
-  if (doNotProcessAsClipboardChange = true) {
-    return
-  }
-
-
   if (status = 1) { ; clipboard has contents that can be intepreted as text, and is not empty
     appendToList(clipboard)
   }
@@ -39,7 +31,10 @@ clipboardContentChanged(status) {
 appendToList(contents) {
   global ClipboardContentsArray
 
-  if (ClipboardContentsArray.Length() = 10) {
+  if (listContains(contents) = true) {
+    return
+  }
+  else if (ClipboardContentsArray.Length() = 10) {
     ClipboardContentsArray.RemoveAt(1) ; remove oldest entry
     ClipboardContentsArray.Push(contents)
   }
@@ -105,9 +100,6 @@ promptListChoice(list, itemCount) {
 }
 
 pasteSend(item) {
-  global doNotProcessAsClipboardChange
-  doNotProcessAsClipboardChange := true
-  
   temp := clipboard
   clipboard := item
   Sleep 200
@@ -115,5 +107,16 @@ pasteSend(item) {
   Sleep 200
   clipboard := temp
   Sleep 200
-  doNotProcessAsClipboardChange := false
+}
+
+listContains(contents) {
+  global ClipboardContentsArray
+
+  for key, value in ClipboardContentsArray {
+    if (value == contents) { ; case-sensitive
+      return true
+    }
+  }
+
+  return false
 }
