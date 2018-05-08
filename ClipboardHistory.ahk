@@ -2,12 +2,15 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 SetTitleMatchMode, 2 ; title contains the string supplied
+DetectHiddenText, On ; to aide in ahk_class window detection
 CoordMode, ToolTip, Screen ; absolute screen coordinates, top left (0,0)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;; Global Initializations
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ClipboardContentsArray := []
+ShortcutMap := []
+loadShortcutMapping()
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 #Persistent
@@ -103,7 +106,7 @@ pasteSend(item) {
   temp := clipboard
   clipboard := item
   Sleep 200
-  Send ^v
+  pasteAccordingToApplicationShortcut()
   Sleep 200
   clipboard := temp
   Sleep 200
@@ -120,3 +123,69 @@ listContains(contents) {
 
   return false
 }
+
+pasteAccordingToApplicationShortcut() {
+  global ShortcutMap
+  
+  mapped := 0
+  
+  for key, value in ShortcutMap {
+    if (WinActive(key)) {
+      mapped := value
+      break
+    }
+  }
+  
+  usePasteShortcut(value)
+}
+
+usePasteShortcut(value) {
+  if (value == "1") {
+    Send +{Ins}
+  }
+  else if (value == "2") {
+    Click, down, right
+    Sleep 100
+    Click, up, right
+    Sleep 100
+    Send p
+  }
+  else {
+    Send ^v
+  }
+}
+
+loadShortcutMapping() {
+  Loop
+  {
+    FileReadLine, line, paste-shortcut-map.txt, %A_Index%
+    if (ErrorLevel) {
+      break
+    }
+    else if (isSettingLine(line)) {
+      addShortcutMapping(line)
+    }
+  }
+}
+
+isSettingLine(line) {
+  if (InStr(line, ";") > 0) {
+    return false
+  }
+  else if ((InStr(line, ",") > 0) and (InStr(line, " ") > 0)) {
+    return true
+  }
+  else {
+    return false
+  }
+}
+
+addShortcutMapping(line) {
+  global ShortcutMap
+  setting := StrSplit(line, ",", " ") ; comma-separated, trim spaces
+  first := setting[1]
+  key := setting[1]
+  value := setting[2]
+  ShortcutMap[key] := value
+}
+

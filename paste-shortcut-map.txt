@@ -1,0 +1,14 @@
+;; Format:
+;; title-partial-or-ahk-class optional-ahk-class, OPERATION_TYPE
+;;
+;; OPERATION_TYPE is
+;; 1 --> Shift + Insert
+;; 2 --> Right-click, p
+;; If not listed here, the operation will be --> Ctrl + v
+
+ahk_class PuTTY, 1
+ahk_exe putty.exe, 1
+ahk_class ConsoleWindowClass, 2
+ahk_class cmd.exe, 2
+ahk_class mintty, 1
+ahk_exe mintty.exe, 1
