@@ -47,7 +47,16 @@ showListContents() {
   itemCount := 0
   
   for key, value in ClipboardContentsArray {
-    list := itemCount . ": " . value . "`r`n" . list
+
+    if (StrLen(value) > 20) {
+      preview := SubStr(value, 1, 20) . "..."
+    }
+    else {
+      preview := value
+    }
+
+    entry := itemCount . ": " . preview . "`r`n"
+    list := entry . list
     itemCount++
   }
   
