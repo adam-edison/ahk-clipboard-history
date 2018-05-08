@@ -47,7 +47,7 @@ showListContents() {
   itemCount := 0
   
   for key, value in ClipboardContentsArray {
-    list .= itemCount . ": " . value . "`r`n"
+    list := itemCount . ": " . value . "`r`n" . list
     itemCount++
   }
   
